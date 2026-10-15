@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.egg-info/
+/build/
+/dist/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.vs/
+.DS_Store
+*~
+.~lock.*
+
+# Runtime outputs
+/runs/
+/out/
+/outputs/
+/data/
+*.log
+
+# Weights and latents
+*.pt

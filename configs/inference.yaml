@@ -1,0 +1,14 @@
+# PPMem inference configuration: the settings a run can change, declared in
+# ppmem/config.py (the model itself is fixed by the checkpoint).
+#
+#   run     per-run knobs
+#
+# Command-line --section.key value arguments override this file.
+
+# By default, weights are downloaded from Robbyant-Research/PPMem and cached by Hugging Face.
+# Override with --checkpoint <local directory or HF repo ID>.
+
+run:
+  num_inference_steps: 50
+  guidance_scale: 5.0
+  flow_shift: 5.0

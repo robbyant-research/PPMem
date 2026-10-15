@@ -1,0 +1,52 @@
+# Dependencies for PPMem inference and the single-image demo.
+#
+# The versions in the comments are what we actually ran, on Python 3.10 with CUDA 12.6
+# and GCC 12 on an Ampere GPU. They are not lower bounds or requirements -- just the
+# combination that has been verified end to end. PyTorch 2.12 and later build
+# extensions as C++20 and need GCC 11 or later (see README).
+#
+# First install PyTorch and build prerequisites as shown in README, then run:
+# python -m pip install --no-build-isolation -r requirements.txt
+
+# -- core --
+torch                 # tested 2.14.0+cu126
+numpy                 # tested 2.2.6 and 1.26.4
+diffusers             # tested 0.40.0
+accelerate            # tested 1.15.0. diffusers loads the VAE without a throwaway CPU
+                      # initialization when it is present, and warns when it is not;
+                      # outputs are identical either way.
+transformers          # tested 5.17.0
+safetensors           # tested 0.8.0
+huggingface_hub       # tested 1.33.0. Model downloads and cache management.
+einops                # tested 0.8.2
+scipy                 # tested 1.15.3
+
+# -- config --
+PyYAML                # tested 6.0.3
+
+# -- image / video --
+pillow                # tested 12.3.0
+opencv-python         # tested 4.11.0.86; OpenCV 5.0 changes only the text drawn into
+                      # diagnostic_grid.mp4.
+imageio[ffmpeg]       # tested 2.37.4. The [ffmpeg] extra (or [pyav]) supplies the mp4
+                      # backend; the outputs are libx264 mp4.
+matplotlib            # tested 3.10.9 (colormaps for diagnostic_grid.mp4, written at the end of every run)
+
+# -- text --
+ftfy                  # tested 6.3.1
+regex                 # tested 2026.9.10
+typing_extensions     # tested 4.16.0
+
+# -- single-image depth estimation --
+# Pin MoGe 2: upstream main now targets MoGe 3 and changes its dependencies.
+# Validated in a clean environment with the versions above.
+moge@git+https://github.com/microsoft/MoGe.git@b942f00bdc2a2a23ebb474fbe034d487e6dcceec
+
+# -- CUDA extensions (source builds) --
+# FA3's hopper package provides the top-level flash_attn_interface module. Its build script
+# replaces torch's _write_ninja_file to add per-file gencode flags; revisions older than
+# this one do not accept the keyword arguments current torch passes, and the build fails
+# with TypeError before compiling anything.
+flash_attn_3@git+https://github.com/Dao-AILab/flash-attention.git@de1584b5328321189a4d7832fe29bbd6813bf6ed#subdirectory=hopper
+# PlanarSplatting's rectangle rasterizer; pip also fetches its GLM submodule.
+diff_rect_rasterization@git+https://github.com/ant-research/diff-rect-rasterization.git@78ef49aebdfa437d19e328cf700353f23db74f74

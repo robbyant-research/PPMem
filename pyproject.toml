@@ -1,0 +1,48 @@
+# Git dependencies use fixed source revisions.
+# requirements.txt records the tested environment.
+
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppmem"
+version = "0.1.0"
+description = "PPMem: incremental video generation with a persistent plane pool (inference + single-image demo)"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"          # tested on 3.10.16
+dependencies = [
+    "torch",
+    "numpy",
+    "diffusers",
+    "accelerate",
+    "transformers",
+    "safetensors",
+    "huggingface_hub",
+    "einops",
+    "scipy",
+    "PyYAML",
+    "pillow",
+    "opencv-python",
+    "imageio[ffmpeg]",   # FFmpeg backend for MP4 output.
+    "matplotlib",
+    "ftfy",
+    "regex",
+    "typing_extensions",
+    "moge@git+https://github.com/microsoft/MoGe.git@b942f00bdc2a2a23ebb474fbe034d487e6dcceec",
+    "flash_attn_3@git+https://github.com/Dao-AILab/flash-attention.git@de1584b5328321189a4d7832fe29bbd6813bf6ed#subdirectory=hopper",
+    "diff_rect_rasterization@git+https://github.com/ant-research/diff-rect-rasterization.git@78ef49aebdfa437d19e328cf700353f23db74f74",
+]
+
+[project.optional-dependencies]
+magi = [
+    "debugpy",  # MagiAttention v1.0.4 imports this at module load.
+    "magi_attention@git+https://github.com/SandAI-org/MagiAttention.git@v1.0.4",
+]
+
+[project.scripts]
+ppmem = "ppmem.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ppmem*"]
