@@ -55,6 +55,8 @@ Use Linux, Python 3.10 or later, Git, a C++ compiler, and a CUDA toolkit compati
 
 PPMem runs on a single NVIDIA GPU and uses about 19 GiB of GPU memory with the default settings. A GPU with at least 24 GB of memory is recommended.
 
+FlashAttention-3 is optional. It is built for Ampere and Hopper GPUs only; on others, such as Blackwell GeForce and RTX PRO cards (sm_120), leave it out of the installation (remove its line from `requirements.txt`) and PPMem computes the same attention with PyTorch's `scaled_dot_product_attention`, at lower speed.
+
 PyTorch 2.12 and later build CUDA extensions as C++20, which requires GCC 11 or later. If your system compiler is older (Ubuntu 20.04 ships GCC 9), install a newer one and point `CC` and `CXX` at it. In a conda environment, this command does both once you reactivate the environment:
 
 ```bash

@@ -8,7 +8,25 @@ from typing import Optional
 from typing_extensions import List
 from diffusers.models.attention import AttentionModuleMixin
 
-from flash_attn_interface import flash_attn_varlen_func
+try:
+    from flash_attn_interface import flash_attn_varlen_func
+except ImportError:
+    # FlashAttention-3 builds kernels for sm_80 and sm_90a only, so it is not available on e.g. Blackwell GeForce /
+    # RTX PRO GPUs (sm_120) or on Windows. Use PyTorch SDPA on each segment instead: the same attention, slower.
+    def flash_attn_varlen_func(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q=None, max_seqlen_k=None,
+                               causal=False):
+        """[total_q, heads, dim] attention in which tokens of segment i (cu_seqlens[i]:cu_seqlens[i + 1])
+        attend only to keys of segment i, as flash_attn_varlen_func. Non-causal only (PPMem's use)."""
+        if causal:
+            raise NotImplementedError("the SDPA fallback supports causal=False only")
+        cu_q, cu_k = cu_seqlens_q.tolist(), cu_seqlens_k.tolist()
+        out = q.new_empty(q.shape[0], q.shape[1], v.shape[2])
+        for i in range(len(cu_q) - 1):
+            q_i = q[cu_q[i]:cu_q[i + 1]].transpose(0, 1)[None]
+            k_i = k[cu_k[i]:cu_k[i + 1]].transpose(0, 1)[None]
+            v_i = v[cu_k[i]:cu_k[i + 1]].transpose(0, 1)[None]
+            out[cu_q[i]:cu_q[i + 1]] = torch.nn.functional.scaled_dot_product_attention(q_i, k_i, v_i)[0].transpose(0, 1)
+        return out
 
 try:
     from magi_attention.common.ranges import AttnRanges
