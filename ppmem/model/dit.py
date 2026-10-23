@@ -123,7 +123,7 @@ class FlashAttnVarlenEncoderLayer(nn.Module):
             max_seqlen: int
         Returns: [total_tokens, D]
         """
-        from flash_attn_interface import flash_attn_varlen_func
+        from ppmem.model.attention import flash_attn_varlen_func
 
         x_norm = self.norm1(x)
 
